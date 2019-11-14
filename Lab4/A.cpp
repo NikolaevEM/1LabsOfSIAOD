@@ -15,13 +15,86 @@
 using namespace std;
 
 int main() {  //Нужно переписать программу, слишком много памяти жрет
-	int temp,n,m,s=0,w;
+	int temp,n,m,s=0,w,i1=0,i2=1;
 	int **in;		// Данные w и p камней
 	int ***tabl;  /* - Наша таблица. tabl[kam][maxW][field]:
 					kam - номер камня
 					maxW - макс вес сумки по допущению
 					field - содержит суммарный w и p камней */
 
+	freopen("input.txt", "r", stdin);  //Чтение файла.
+	cin >> n;
+	in = new int*[n];
+	tabl = new int**[2];
+	cin >> w;
+	for (int kam=0; kam<n; kam++) {  //Инициализация массивов, ввод данных
+		in[kam] = new int[2];
+		tabl[kam] = new int*[w];
+		cin >> temp;
+		in[kam][0]=temp;
+		cin >> temp;
+		in[kam][1]=temp;
+	}
+	fclose(stdin);
+	//freopen("CON", "r", stdin);  //Перенаправить чтение обратно в консоль.
+
+	for (int maxW=0; maxW<w; maxW++) {  //заполнение первой строки таблицы, т.е рассматриваем первый камень
+		tabl[0][maxW] = new int[2];
+		if (maxW >= in[0][0]) {  //Если можно впихнуть камень
+			tabl[0][maxW][0]=in[0][0];
+			tabl[0][maxW][1]=in[0][1];
+		} else {
+			tabl[0][maxW][0]=0;
+			tabl[0][maxW][1]=0;
+		}
+	}
+	for (int kam=1; kam<n; kam++)
+		for (int maxW=0; maxW<w; maxW++) {  //заполнение всей таблицы
+			tabl[i2][maxW] = new int[2];
+			if (maxW-in[kam][0]>=0 && maxW >= in[kam][0]+tabl[i1][maxW-in[kam][0]][0]) {  //Если можно впихнуть этот камень
+				if (tabl[i1][maxW][1] < tabl[i1][maxW-in[kam][0]][1] + in[kam][1]) {  //Выбираем из 2 вар макс
+					tabl[i2][maxW][0]=tabl[i1][maxW-in[kam][0]][0] + in[kam][0];  //Ячейка = предыдущие данные[maxW-w камня] + данные камня
+					tabl[i2][maxW][1]=tabl[i1][maxW-in[kam][0]][1] + in[kam][1];
+				}
+				else {
+					tabl[i2][maxW][0]=tabl[i1][maxW][0];  //Ячейка = предыдущие данные
+					tabl[i2][maxW][1]=tabl[i1][maxW][1];
+				}
+			}
+			else {  //Если нельзя впихнуть еще 1 камень
+				tabl[i2][maxW][0]=tabl[i1][maxW][0];  //Ячейка = предыдущие данные
+				tabl[i2][maxW][1]=tabl[i1][maxW][1];
+			}
+		}
+
+	int max=0;
+	for (int maxW=0; maxW<w; maxW++) {
+		if (max < tabl[0][maxW][1])
+			max = tabl[0][maxW][1];
+	}
+	for (int maxW=0; maxW<w; maxW++) {
+		if (max < tabl[1][maxW][1])
+			max = tabl[1][maxW][1];
+	}
+
+	freopen("output.txt", "w", stdout);
+	cout << max;  //выводим самый последний результат сумки с макс предельным весом
+	fclose(stdout);
+
+	//freopen("CON", "w", stdout);  //Перенаправить запись обратно в консоль.
+	//system("pause");
+	return 0;
+}
+
+/*
+int main() {  //Нужно переписать программу, слишком много памяти жрет
+	int temp,n,m,s=0,w;
+	int **in;		// Данные w и p камней
+	int ***tabl;  /* - Наша таблица. tabl[kam][maxW][field]:
+					kam - номер камня
+					maxW - макс вес сумки по допущению
+					field - содержит суммарный w и p камней */
+/*
 	freopen("input.txt", "r", stdin);  //Чтение файла.
 	cin >> n;
 	in = new int*[n];
@@ -81,4 +154,4 @@ int main() {  //Нужно переписать программу, слишко
 	//freopen("CON", "w", stdout);  //Перенаправить запись обратно в консоль.
 	//system("pause");
 	return 0;
-}
+} */
