@@ -7,10 +7,10 @@ using namespace std;
 int obhod(int end, int lenReb, int **list, int **m, int cur) {
 	for (int i=0;i<lenReb;i++) {
 		if (m[i][0]==cur) {   //Если нашли смежную вершину
-			list[m[i][1]][0]=1;
+			list[m[i][1]][0]=1;   //отмечаем visit
 			if (list[m[i][1]][2]>1+list[cur][2]) { //Если у соседней вершины minLen больше
-				list[m[i][1]][0]=cur;
-				list[m[i][1]][2]+=1+list[cur][2];
+				list[m[i][1]][2]+=1+list[cur][2];   //обновляем minLen
+				list[m[i][1]][1]=cur;    //указываем way
 				if (cur!=m[i][1])   //если соседняя вершина не финальная
 					obhod(end, lenReb, list, m, m[i][1]);   //Исследуем соседнюю вершину
 			}
@@ -21,8 +21,12 @@ int obhod(int end, int lenReb, int **list, int **m, int cur) {
 }
 
 int printMin(int *answer, int **list, int cur, int start) {
-	if (cur!=start)
-		printMin(answer, list, list[cur][2], start);
+	int i = 0;
+	if (cur!=start) {
+		printMin(answer, list, list[cur][1], start);
+		answer[i]=cur;
+		i++;
+	}
 
 	return 1;
 }
@@ -35,7 +39,7 @@ int main()
 	int **m;
 	int **list;
 
-	fin >> lenVer, lenReb;
+	fin >> lenVer >> lenReb;
 	m = new int*[lenReb];
 	list = new int*[lenVer];
 
@@ -46,7 +50,7 @@ int main()
 
 	fin >> start >> end;  //чтение конца и начала
 
-	for (int i=0;i<lenVer;i++) {  //Заполнения списка list [visit] [way] [minLen]
+	for (int i=0;i<lenVer;i++) {  //Заполнения списка list {visit, way, minLen}
 		list[i] = new int[3];
 		list[i][0]=0;
 		list[i][2]=0;
@@ -56,7 +60,8 @@ int main()
 	list[start][1] = 0;
 	cur = 0;
 
-	obhod(end, lenReb, list, m, cur);
+	obhod(end, lenReb, list, m, start);
+
 	int *answer;
 	answer = new int[list[end][2]];
 	answer[0] = end;
@@ -65,6 +70,7 @@ int main()
 	for (int i=list[end][2];i>0;i--) {  //Заполнения списка list [visit] [way] [minLen]
 		fout << answer[i];
 	}
- 
+
+	fout.close();
     return 0;
 }
